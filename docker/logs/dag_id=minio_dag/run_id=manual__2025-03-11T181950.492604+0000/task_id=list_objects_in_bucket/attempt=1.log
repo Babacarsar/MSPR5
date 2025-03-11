@@ -1,0 +1,29 @@
+[2025-03-11T18:20:11.510+0000] {local_task_job_runner.py:123} INFO - ::group::Pre task execution logs
+[2025-03-11T18:20:11.707+0000] {taskinstance.py:2614} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: minio_dag.list_objects_in_bucket manual__2025-03-11T18:19:50.492604+00:00 [queued]>
+[2025-03-11T18:20:11.739+0000] {taskinstance.py:2614} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: minio_dag.list_objects_in_bucket manual__2025-03-11T18:19:50.492604+00:00 [queued]>
+[2025-03-11T18:20:11.741+0000] {taskinstance.py:2867} INFO - Starting attempt 1 of 2
+[2025-03-11T18:20:11.773+0000] {taskinstance.py:2890} INFO - Executing <Task(PythonOperator): list_objects_in_bucket> on 2025-03-11 18:19:50.492604+00:00
+[2025-03-11T18:20:11.783+0000] {warnings.py:112} WARNING - /home/***/.local/lib/python3.12/site-packages/***/task/task_runner/standard_task_runner.py:70: DeprecationWarning: This process (pid=989) is multi-threaded, use of fork() may lead to deadlocks in the child.
+  pid = os.fork()
+
+[2025-03-11T18:20:11.786+0000] {standard_task_runner.py:72} INFO - Started process 991 to run task
+[2025-03-11T18:20:11.786+0000] {standard_task_runner.py:104} INFO - Running: ['***', 'tasks', 'run', 'minio_dag', 'list_objects_in_bucket', 'manual__2025-03-11T18:19:50.492604+00:00', '--job-id', '44', '--raw', '--subdir', 'DAGS_FOLDER/test.py', '--cfg-path', '/tmp/tmpao2fnp_h']
+[2025-03-11T18:20:11.788+0000] {standard_task_runner.py:105} INFO - Job 44: Subtask list_objects_in_bucket
+[2025-03-11T18:20:11.878+0000] {task_command.py:467} INFO - Running <TaskInstance: minio_dag.list_objects_in_bucket manual__2025-03-11T18:19:50.492604+00:00 [running]> on host 864bdb0a156f
+[2025-03-11T18:20:12.019+0000] {taskinstance.py:3134} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='***' AIRFLOW_CTX_DAG_ID='minio_dag' AIRFLOW_CTX_TASK_ID='list_objects_in_bucket' AIRFLOW_CTX_EXECUTION_DATE='2025-03-11T18:19:50.492604+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='manual__2025-03-11T18:19:50.492604+00:00'
+[2025-03-11T18:20:12.022+0000] {logging_mixin.py:190} INFO - Task instance is in running state
+[2025-03-11T18:20:12.023+0000] {logging_mixin.py:190} INFO -  Previous state of the Task instance: queued
+[2025-03-11T18:20:12.023+0000] {logging_mixin.py:190} INFO - Current task name:list_objects_in_bucket state:running start_date:2025-03-11 18:20:11.709784+00:00
+[2025-03-11T18:20:12.024+0000] {logging_mixin.py:190} INFO - Dag name:minio_dag and current dag run status:running
+[2025-03-11T18:20:12.025+0000] {taskinstance.py:732} INFO - ::endgroup::
+[2025-03-11T18:20:18.759+0000] {logging_mixin.py:190} INFO - 🚨 Erreur lors de la liste des objets : Could not connect to the endpoint URL: "http://localhost:9001/test?list-type=2&encoding-type=url"
+[2025-03-11T18:20:18.760+0000] {python.py:240} INFO - Done. Returned value was: None
+[2025-03-11T18:20:18.773+0000] {taskinstance.py:341} INFO - ::group::Post task execution logs
+[2025-03-11T18:20:18.774+0000] {taskinstance.py:353} INFO - Marking task as SUCCESS. dag_id=minio_dag, task_id=list_objects_in_bucket, run_id=manual__2025-03-11T18:19:50.492604+00:00, execution_date=20250311T181950, start_date=20250311T182011, end_date=20250311T182018
+[2025-03-11T18:20:20.233+0000] {logging_mixin.py:190} INFO - Task instance in success state
+[2025-03-11T18:20:20.238+0000] {logging_mixin.py:190} INFO -  Previous state of the Task instance: running
+[2025-03-11T18:20:20.239+0000] {logging_mixin.py:190} INFO - Dag name:minio_dag queued_at:2025-03-11 18:19:50.520818+00:00
+[2025-03-11T18:20:20.241+0000] {logging_mixin.py:190} INFO - Task hostname:864bdb0a156f operator:PythonOperator
+[2025-03-11T18:20:20.295+0000] {local_task_job_runner.py:266} INFO - Task exited with return code 0
+[2025-03-11T18:20:20.327+0000] {taskinstance.py:3901} INFO - 1 downstream tasks scheduled from follow-on schedule check
+[2025-03-11T18:20:20.333+0000] {local_task_job_runner.py:245} INFO - ::endgroup::
