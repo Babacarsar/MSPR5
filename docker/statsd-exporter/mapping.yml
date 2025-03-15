@@ -1,0 +1,23 @@
+mappings:
+  - match: "airflow.*"
+    name: "airflow_${1}"
+    timer_type: histogram
+    buckets: [0.1, 0.5, 1, 5, 10, 60]
+
+  - match: "airflow.*.*.*.*.*.count"
+    name: "airflow_task_instance_count"
+    labels:
+      dag_id: "$1"
+      task_id: "$2"
+      operator: "$3"
+      state: "$4"
+      hostname: "$5"
+
+  - match: "airflow.*.*.*.*.*.duration"
+    name: "airflow_task_instance_duration"
+    labels:
+      dag_id: "$1"
+      task_id: "$2"
+      operator: "$3"
+      state: "$4"
+      hostname: "$5"

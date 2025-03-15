@@ -61,6 +61,9 @@ x-airflow-common:
     AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
     AIRFLOW__CORE__LOAD_EXAMPLES: 'true'
     AIRFLOW__API__AUTH_BACKENDS: 'airflow.api.auth.backend.basic_auth,airflow.api.auth.backend.session'
+    # Configuration pour utiliser Redis comme cache
+    AIRFLOW__CORE__CACHE_BACKEND: airflow.cache.redis_cache.RedisCache
+    AIRFLOW__CORE__CACHE_BACKEND_REDIS_URL: redis://redis:6379/0
     # yamllint disable rule:line-length
     # Use simple http server on scheduler for health checks
     # See https://airflow.apache.org/docs/apache-airflow/stable/administration-and-deployment/logging-monitoring/check-health.html#scheduler-health-check-server
@@ -309,21 +312,38 @@ services:
     restart: always
 
   datawarehouse:
-      image: postgres:13
-      container_name: datawarehouse
-      environment:
-        POSTGRES_USER: warehouse
-        POSTGRES_PASSWORD: warehouse
-        POSTGRES_DB: warehouse
-      volumes:
-        - datawarehouse-db-volume:/var/lib/postgresql/data
-      ports:
-        - "5433:5432"
-      restart: always
+    image: postgres:13
+    container_name: datawarehouse
+    environment:
+      POSTGRES_USER: warehouse
+      POSTGRES_PASSWORD: warehouse
+      POSTGRES_DB: warehouse
+    volumes:
+      - datawarehouse-db-volume:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    restart: always
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    restart: always
+
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: node-exporter
+    ports:
+      - "9100:9100"
+    restart: always
 
 volumes:
   postgres-db-volume:
   minio-data:
   grafana-data:
   datawarehouse-db-volume:
-
