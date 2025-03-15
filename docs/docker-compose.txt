@@ -1,0 +1,207 @@
+
+
+## **Documentation du Docker Compose**
+
+### **1. Introduction**
+
+Ce fichier `docker-compose.yml` configure un environnement local pour exécuter **Apache Airflow** avec plusieurs services supplémentaires, notamment **PostgreSQL**, **Redis**, **MinIO**, **Grafana**, **Prometheus**, et **Node Exporter**. Il est conçu pour le développement local et ne doit pas être utilisé en production sans modifications supplémentaires.
+
+---
+
+### **2. Structure du Fichier**
+
+Le fichier est divisé en plusieurs sections principales :
+
+1. **Variables d'environnement** : Configuration des variables d'environnement pour personnaliser le déploiement.
+2. **Services** : Définition des conteneurs Docker et de leurs configurations.
+3. **Volumes** : Déclaration des volumes pour persister les données.
+
+---
+
+### **3. Variables d'Environnement**
+
+Les variables d'environnement suivantes peuvent être définies pour personnaliser le déploiement :
+
+- **`AIRFLOW_IMAGE_NAME`** : Nom de l'image Docker pour Airflow (par défaut : `apache/airflow:2.10.5`).
+- **`AIRFLOW_UID`** : ID de l'utilisateur dans les conteneurs Airflow (par défaut : `50000`).
+- **`AIRFLOW_PROJ_DIR`** : Répertoire de base pour les fichiers Airflow (par défaut : `.`).
+- **`_AIRFLOW_WWW_USER_USERNAME`** : Nom d'utilisateur pour le compte administrateur d'Airflow (par défaut : `airflow`).
+- **`_AIRFLOW_WWW_USER_PASSWORD`** : Mot de passe pour le compte administrateur d'Airflow (par défaut : `airflow`).
+- **`_PIP_ADDITIONAL_REQUIREMENTS`** : Packages Python supplémentaires à installer (par défaut : vide).
+
+---
+
+### **4. Services**
+
+#### **4.1. `x-airflow-common`**
+
+Cette section définit des configurations communes pour les services Airflow. Elle est réutilisée via des ancres YAML (`&airflow-common`).
+
+- **`image`** : Image Docker utilisée pour les services Airflow.
+- **`environment`** : Variables d'environnement pour Airflow, notamment :
+  - **`AIRFLOW__CORE__EXECUTOR`** : Exécuteur Celery pour Airflow.
+  - **`AIRFLOW__DATABASE__SQL_ALCHEMY_CONN`** : Connexion à la base de données PostgreSQL.
+  - **`AIRFLOW__CELERY__BROKER_URL`** : URL du broker Redis pour Celery.
+  - **`AIRFLOW__CORE__CACHE_BACKEND`** : Utilisation de Redis comme backend de cache.
+  - **`AIRFLOW__CORE__CACHE_BACKEND_REDIS_URL`** : URL de Redis pour le cache.
+- **`volumes`** : Montage des répertoires locaux pour les DAGs, logs, configurations et plugins.
+- **`depends_on`** : Dépendances entre les services (Redis et PostgreSQL doivent être opérationnels avant Airflow).
+
+---
+
+#### **4.2. `postgres`**
+
+Service PostgreSQL utilisé comme base de données pour Airflow.
+
+- **`image`** : `postgres:13`.
+- **`environment`** : Configuration de l'utilisateur, du mot de passe et de la base de données.
+- **`volumes`** : Persistance des données dans un volume Docker (`postgres-db-volume`).
+- **`healthcheck`** : Vérification de la santé du service PostgreSQL.
+
+---
+
+#### **4.3. `redis`**
+
+Service Redis utilisé comme broker pour Celery et comme cache pour Airflow.
+
+- **`image`** : `redis:7.2-bookworm`.
+- **`expose`** : Exposition du port `6379` pour Redis.
+- **`healthcheck`** : Vérification de la santé du service Redis.
+
+---
+
+#### **4.4. `airflow-webserver`**
+
+Service Airflow pour l'interface web.
+
+- **`command`** : Démarrage du serveur web Airflow.
+- **`ports`** : Exposition du port `8080` pour accéder à l'interface web.
+- **`healthcheck`** : Vérification de la santé du serveur web.
+
+---
+
+#### **4.5. `airflow-scheduler`**
+
+Service Airflow pour le planificateur de tâches.
+
+- **`command`** : Démarrage du scheduler Airflow.
+- **`healthcheck`** : Vérification de la santé du scheduler.
+
+---
+
+#### **4.6. `airflow-worker`**
+
+Service Airflow pour les workers Celery.
+
+- **`command`** : Démarrage des workers Celery.
+- **`healthcheck`** : Vérification de la santé des workers.
+
+---
+
+#### **4.7. `airflow-triggerer`**
+
+Service Airflow pour le déclencheur de tâches.
+
+- **`command`** : Démarrage du triggerer Airflow.
+- **`healthcheck`** : Vérification de la santé du triggerer.
+
+---
+
+#### **4.8. `airflow-init`**
+
+Service d'initialisation d'Airflow.
+
+- **`entrypoint`** : Script Bash pour initialiser Airflow.
+- **`command`** : Vérification des ressources disponibles et initialisation des répertoires.
+- **`environment`** : Variables d'environnement supplémentaires pour l'initialisation.
+
+---
+
+#### **4.9. `minio`**
+
+Service MinIO pour le stockage d'objets.
+
+- **`image`** : `minio/minio`.
+- **`command`** : Démarrage du serveur MinIO.
+- **`environment`** : Configuration de l'utilisateur et du mot de passe.
+- **`volumes`** : Persistance des données dans un volume Docker (`minio-data`).
+- **`ports`** : Exposition des ports `9000` (API) et `9001` (interface web).
+
+---
+
+#### **4.10. `grafana`**
+
+Service Grafana pour la visualisation des données.
+
+- **`image`** : `grafana/grafana:latest`.
+- **`ports`** : Exposition du port `3000` pour accéder à l'interface web.
+- **`environment`** : Configuration de l'utilisateur et du mot de passe.
+- **`volumes`** : Persistance des données dans un volume Docker (`grafana-data`).
+
+---
+
+#### **4.11. `datawarehouse`**
+
+Service PostgreSQL supplémentaire pour le stockage des données.
+
+- **`image`** : `postgres:13`.
+- **`environment`** : Configuration de l'utilisateur, du mot de passe et de la base de données.
+- **`volumes`** : Persistance des données dans un volume Docker (`datawarehouse-db-volume`).
+- **`ports`** : Exposition du port `5433` pour accéder à la base de données.
+
+---
+
+#### **4.12. `prometheus`**
+
+Service Prometheus pour la surveillance des métriques.
+
+- **`image`** : `prom/prometheus:latest`.
+- **`ports`** : Exposition du port `9090` pour accéder à l'interface web.
+- **`volumes`** : Montage du fichier de configuration `prometheus.yml`.
+- **`command`** : Démarrage de Prometheus avec le fichier de configuration.
+
+---
+
+#### **4.13. `node-exporter`**
+
+Service Node Exporter pour la collecte des métriques système.
+
+- **`image`** : `prom/node-exporter:latest`.
+- **`ports`** : Exposition du port `9100` pour accéder aux métriques.
+
+---
+
+### **5. Volumes**
+
+Les volumes suivants sont définis pour persister les données :
+
+- **`postgres-db-volume`** : Données de la base de données PostgreSQL principale.
+- **`minio-data`** : Données stockées dans MinIO.
+- **`grafana-data`** : Données de Grafana.
+- **`datawarehouse-db-volume`** : Données de la base de données supplémentaire.
+
+---
+
+### **6. Utilisation**
+
+1. **Lancement des services** :
+   ```bash
+   docker-compose up -d
+   ```
+
+2. **Accès aux interfaces** :
+   - **Airflow** : `http://localhost:8080`
+   - **MinIO** : `http://localhost:9001`
+   - **Grafana** : `http://localhost:3000`
+   - **Prometheus** : `http://localhost:9090`
+
+3. **Arrêt des services** :
+   ```bash
+   docker-compose down
+   ```
+
+---
+
+### **7. Conclusion**
+
+Ce fichier `docker-compose.yml` configure un environnement complet pour exécuter Apache Airflow avec des services supplémentaires pour le stockage, la surveillance et la visualisation des données. Il est conçu pour le développement local et peut être adapté pour des environnements de production avec des modifications supplémentaires (par exemple, sécurisation des services, configuration de la haute disponibilité).

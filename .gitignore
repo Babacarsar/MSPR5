@@ -6,3 +6,4 @@ logs/dag_id=minio_dag
 logs/dag_processor_manager
 logs/scheduler
 airflow/airflow-env
+docker/logs
